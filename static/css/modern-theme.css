@@ -754,12 +754,12 @@ body {
   display: inline-block;
   font-size: 4rem;
   font-weight: 900;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #fff;
+  /* color overridden per-page via inline style; shadow set together */
+  text-shadow: 0 0 40px rgba(102,126,234,.55), 0 2px 8px rgba(0,0,0,.4);
   line-height: 1;
   margin-bottom: 0.3rem;
+  letter-spacing: .06em;
 }
 
 .personality-type-name {
