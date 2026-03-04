@@ -1,65 +1,171 @@
-﻿<!doctype html>
-<html>
-
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="A website for MBTI test">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="keywords" content="MBTI, mbti">
-    <title>测试中</title>
-    <link rel="shortcut icon" href="./static/img/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="./static/css/app.css" />
-    <link rel="stylesheet" href="./static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./static/css/svgcheckbx.css">
-    <script type="text/javascript" src="./static/js/jquery-3.7.1.min.js"></script>
-    <script src="./static/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./static/js/jquery.cookie.js"></script>
-    <script src="./static/js/MBTI.js"></script>
-    <script src="./static/js/printProjectInfo.js"></script>
-    <style>
-        body {
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .questionbox {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="description" content="MBTI人格测试" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MBTI 测试中</title>
+  <link rel="shortcut icon" href="./static/img/favicon.ico" />
+  <link rel="stylesheet" href="./static/css/modern-theme.css" />
+  <style>
+    body { overflow: hidden; }
+    .test-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 1rem 2rem;
+    }
+    #mbtiquestion { width: 100%; max-width: 720px; }
+    /* Override question form to match theme */
+    .ac-custom { width: 100%; }
+    .ac-custom h2 {
+      font-size: 1.3rem !important;
+      font-weight: 600 !important;
+      color: var(--text-primary) !important;
+      padding: 0 0 1.5rem !important;
+      line-height: 1.5;
+    }
+    .ac-custom ul { margin-left: 0 !important; }
+    .ac-custom li {
+      padding: 0.4rem 0 !important;
+      position: relative;
+    }
+    .ac-custom label {
+      display: flex !important;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.4rem !important;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem !important;
+      color: var(--text-secondary) !important;
+      transition: all .25s ease;
+      width: 100%;
+      font-family: var(--font-sans);
+      position: static;
+    }
+    .ac-custom label:hover {
+      background: rgba(102,126,234,0.1);
+      border-color: var(--color-primary);
+      color: var(--text-primary) !important;
+    }
+    .ac-custom input[type="radio"] { opacity: 0; width: 0; height: 0; position: absolute; }
+    .ac-custom input:checked + label {
+      background: rgba(102,126,234,0.15) !important;
+      border-color: var(--color-primary) !important;
+      color: var(--text-primary) !important;
+    }
+    .ac-custom label::before { display: none !important; }
+    .ac-custom svg { display: none !important; }
+    .ac-custom form {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      animation: questionIn .4s ease;
+    }
+    @keyframes questionIn { from{opacity:0;transform:translateY(20px) scale(.98)} to{opacity:1;transform:translateY(0) scale(1)} }
+  </style>
+  <script type="text/javascript" src="./static/js/jquery-3.7.1.min.js"></script>
+  <script type="text/javascript" src="./static/js/jquery.cookie.js"></script>
 </head>
-
 <body>
-    <div class="navbar navbar-default" style="margin-bottom: 10em;">
-        <div class="container">
-            <div class="navbar-header">
-                <a href="./index.html" class="navbar-brand">MBTI</a>
-                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>
-            <div class="navbar-collapse collapse" id="navbar-main">
-                <ul class="nav navbar-nav">
-                    <li>
-                        <a href="./personalities.html">十六种人格简介</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
+  <div class="starfield"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
 
-    <div class="container">
-        <div class="questionbox">
-            <div class="flexWidth" id="mbtiquestion">
-                <!-- topic -->
-            </div>
-        </div>
-    </div>
+  <!-- Navbar -->
+  <nav class="modern-nav">
+    <a href="./index.html" class="nav-brand">MBTI</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="./personalities.html">十六种人格</a></li>
+    </ul>
+    <button class="nav-hamburger" id="navHamburger" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
 
+  <!-- Progress bar -->
+  <div class="progress-container">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">0 / 93</div>
+
+  <!-- Question area -->
+  <div class="test-page">
+    <div id="mbtiquestion"></div>
+  </div>
+
+  <script>
+  // hamburger
+  document.getElementById('navHamburger').addEventListener('click',function(){
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  var answers = [];
+  var totalQs = 93;
+
+  function updateProgress(count){
+    var pct = Math.round(count / totalQs * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressLabel').textContent = count + ' / ' + totalQs;
+  }
+
+  $(document).ready(function(){
+    $.ajax({
+      type: 'get', url: './data/output.txt', async: false,
+      success: function(data){
+        var data = JSON.parse(data);
+        totalQs = data.length;
+        data.forEach(function(item, index){
+          var display = index === 0 ? 'block' : 'none';
+          $('#mbtiquestion').append(
+            '<form class="ac-custom ac-radio" autocomplete="off" style="display:' + display + '">'+
+              '<h2>' + (index+1) + '. ' + item.question + '</h2>'+
+              '<ul>'+
+                '<li><input id="ca_'+index+'" name="answer" value="'+item.choice_a.value+'" type="radio"><label for="ca_'+index+'">'+item.choice_a.text+'</label></li>'+
+                '<li><input id="cb_'+index+'" name="answer" value="'+item.choice_b.value+'" type="radio"><label for="cb_'+index+'">'+item.choice_b.text+'</label></li>'+
+              '</ul>'+
+            '</form>'
+          );
+        });
+      }
+    });
+
+    $(document).on('change', 'input[name="answer"]', function(){
+      var answer = $(this).val();
+      answers.push(answer);
+      updateProgress(answers.length);
+      var form = $(this).closest('form');
+      var next = form.next();
+      setTimeout(function(){
+        form.remove();
+        if(next.length) next.css('display','block');
+      }, 450);
+      if(answers.length === totalQs){
+        var page = ObtainingAnswers(answers);
+        setTimeout(function(){ window.location.href = './personalities/' + page + '.html'; }, 600);
+      }
+    });
+  });
+
+  function ObtainingAnswers(answer_list){
+    if(!answer_list.length) return 'INFP';
+    var counts = answer_list.reduce(function(acc,cur){ acc[cur]=(acc[cur]||0)+1; return acc; },{});
+    var r='';
+    r += (counts['E']||0) >= (counts['I']||0) ? 'E' : 'I';
+    r += (counts['S']||0) >= (counts['N']||0) ? 'S' : 'N';
+    r += (counts['T']||0) >= (counts['F']||0) ? 'T' : 'F';
+    r += (counts['J']||0) >= (counts['P']||0) ? 'J' : 'P';
+    return r;
+  }
+  </script>
 </body>
-
 </html>

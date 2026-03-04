@@ -1,60 +1,20 @@
 ﻿<!DOCTYPE html>
-<html>
-
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="A website for MBTI test">
-    <meta name="viewport" content="width=device-width">
-    <meta name="keywords" content="MBTI, mbti">
-    <title>ISFP</title>
-    <link rel="shortcut icon" href="../static/img/favicon.ico">
-    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/css/article.css">
-    <link rel="stylesheet" href="../static/css/app.css">
-    <script src="../static/js/jquery-3.7.1.min.js"></script>
-    <script src="../static/js/bootstrap.min.js"></script>
-    <script src="../static/js/classie.js"></script>
-    <script src="../static/js/introduce.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ISFP 探险家型 - MBTI</title>
+  <link rel="shortcut icon" href="../static/img/favicon.ico" />
+  <link rel="stylesheet" href="../static/css/modern-theme.css" />
+  <style>.article-hero-bg{background:linear-gradient(135deg,#f093fb,#f5576c) !important;}.personality-type-badge{background:linear-gradient(135deg,#f093fb,#f5576c) !important;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}</style>
 </head>
-
 <body>
-    <div class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a href="../index.html" class="navbar-brand">MBTI</a>
-                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-            </div>
-            <div class="navbar-collapse collapse" id="navbar-main">
-                <ul class="nav navbar-nav">
-                    <li>
-                        <a href="../personalities.html">十六种人格简介</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        <div id="article" class="article intro-effect-jam3">
-            <div class="header">
-                <div class="title">
-                    <h1>ISFP</h1>
-                    <p class="subline">艺术家型人格</p>
-                </div>
-            </div>
-            <button class="trigger" data-info="点击查看详情">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" style="color: white;" fill="currentColor"
-                    class="bi bi-box" viewBox="0 0 16 16">
-                    <path
-                        d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5 8.186 1.113zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z" />
-                </svg>
-            </button>
-            <article class="content">
-                <div>
+  <div class="starfield"></div><div class="bg-orb bg-orb-1"></div><div class="bg-orb bg-orb-2"></div>
+  <nav class="modern-nav"><a href="../index.html" class="nav-brand">MBTI</a><ul class="nav-links" id="navLinks"><li><a href="../personalities.html">十六种人格</a></li><li><a href="../MBTI.html">开始测试</a></li></ul><button class="nav-hamburger" id="navHamburger"><span></span><span></span><span></span></button></nav>
+  <div class="page-wrapper">
+    <div class="article-hero"><div class="article-hero-bg"></div><div class="article-hero-content"><div class="personality-type-badge">ISFP</div><div class="personality-type-name">探险家型</div></div></div>
+    <div class="article-content-wrapper animate-fadeIn"><a href="../personalities.html" class="back-btn"> 返回人格列表</a>
+<div>
                     <h3>概览</h3>
                     <p>国际最为流行的职业人格评估工具MBTI分析中，16种人格类型中的一种，ISFP为艺术家型人格，
                         具有以下特征：1.羞怯的、安宁和善地、敏感的、亲切的、且行事谦虚。2.喜于避开争论，不对他人强加已见或价值观。3.无意于领导却常是忠诚的追随者。4.办事不急躁，安于现状无意于以过度的急切或努力破坏现况，且非成果导向。5.喜欢有自由的空间及照自订的时程办事。
@@ -124,10 +84,10 @@
                     <p>作为一个艺术家型，奉献和柔顺是你带给一段感情最重要的两个特质。你真心且几近天真地表达爱意，会让那个真正适合的情人(和你自己)非常快乐。</p>
                     <p>但必须确定你选择了一个相配的伴侣，因为一旦陷入爱情，你就等于坐上了一列几乎停不下来的过山车。</p>
                 </div>
-            </article>
-        </div>
+      <div style="margin-top:4rem;text-align:center;"><a href="../MBTI.html" class="btn-primary-glow">重新测试 </a></div>
     </div>
-
+  </div>
+  <button class="scroll-top" id="sb" title="回到顶部"></button>
+  <script>document.getElementById('navHamburger').addEventListener('click',function(){document.getElementById('navLinks').classList.toggle('open');});var sb=document.getElementById('sb');window.addEventListener('scroll',function(){sb.classList.toggle('visible',window.scrollY>300);});sb.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});</script>
 </body>
-
 </html>

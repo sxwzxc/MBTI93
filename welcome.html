@@ -1,45 +1,111 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Welcome to MBTI-TEST</title>
-    <link rel="stylesheet" type="text/css" href="./static/css/welcome.css" />
-    <script type="text/javascript" src="./static/js/jquery-3.7.1.min.js"></script>
-    <script type="text/javascript" src="./static/js/jquery.lettering.js"></script>
-    <script src="./static/js/printProjectInfo.js"></script>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MBTI人格测试 - 探索你的性格类型" />
+  <title>MBTI 人格测试</title>
+  <link rel="shortcut icon" href="./static/img/favicon.ico" />
+  <link rel="stylesheet" href="./static/css/modern-theme.css" />
+  <style>
+    body { overflow: hidden; }
+    .welcome-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+    .ring-wrapper {
+      position: relative;
+      width: 200px; height: 200px;
+      margin-bottom: 2.5rem;
+    }
+    .ring {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+    }
+    .ring-1 { border-top-color: var(--color-primary); border-right-color: var(--color-primary); animation: ringRotate 3s linear infinite; }
+    .ring-2 { inset: 14px; border-bottom-color: var(--color-accent-cyan); border-left-color: var(--color-accent-cyan); animation: ringRotate 5s linear infinite reverse; }
+    .ring-3 { inset: 28px; border-top-color: var(--color-accent-pink); border-right-color: var(--color-accent-pink); animation: ringRotate 8s linear infinite; }
+    @keyframes ringRotate { to { transform: rotate(360deg); } }
+    .ring-center {
+      position: absolute; inset: 44px;
+      border-radius: 50%;
+      background: rgba(102,126,234,0.08);
+      border: 1px solid var(--border-glass);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+    .ring-center-text {
+      font-size: 1.5rem; font-weight: 900;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      letter-spacing: 0.08em;
+    }
+    .welcome-title {
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 900; line-height: 1; text-align: center; margin-bottom: 0.6rem;
+    }
+    .welcome-title .t1 { background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block; animation: fadeDown 0.8s ease 0.2s both; }
+    .welcome-title .t2 { background: var(--gradient-cyan); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block; animation: fadeDown 0.8s ease 0.4s both; }
+    .welcome-sub { font-size: 1.05rem; color: var(--text-secondary); text-align: center; margin-bottom: 2.5rem; animation: fadeUp 0.8s ease 0.6s both; }
+    .enter-prompt { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; animation: fadeUp 0.8s ease 0.8s both; color: var(--text-muted); font-size: 0.85rem; }
+    .enter-arrow { width: 20px; height: 20px; border-right: 2px solid var(--color-primary); border-bottom: 2px solid var(--color-primary); transform: rotate(45deg); animation: arrowBounce 1.5s ease infinite; }
+    @keyframes arrowBounce { 0%,100%{transform:rotate(45deg) translateY(0)} 50%{transform:rotate(45deg) translateY(7px)} }
+    .particle { position: fixed; border-radius: 50%; pointer-events: none; animation: particleFly linear infinite; }
+    @keyframes particleFly { from{transform:translateY(100vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} to{transform:translateY(-10vh) scale(1.2);opacity:0} }
+    .ripple { position: fixed; border-radius: 50%; background: rgba(102,126,234,.3); pointer-events: none; animation: rippleExpand .6s ease forwards; }
+    @keyframes rippleExpand { from{width:0;height:0;opacity:1;transform:translate(-50%,-50%)} to{width:400px;height:400px;opacity:0;transform:translate(-50%,-50%)} }
+  </style>
 </head>
-
 <body>
-    <a href="./index.html">
-        <div class="container">
-            <section class="main">
-                <h2 class="cs-text">
-                    <span class="cs-text-cut">Welcome</span>
-                    <span class="cs-text-mid">Biz-MBTI</span>
-                    <span class="cs-text-cut">Welcome</span>
-                </h2>
-            </section>
-            <div class="component">
-                <ul class="grid">
-                    <li class="ot-letter-bottom"><span data-letter="B">B</span></li>
-                    <li class="ot-letter-right"><span data-letter="I">I</span></li>
-                    <li class="ot-letter-top"><span data-letter="Z">Z</span></li>
-                    <li class="ot-letter-left"><span data-letter="-">-</span></li>
-                    <li class="ot-letter-left"><span data-letter="M">M</span></li>
-                    <li class="ot-letter-top"><span data-letter="B">B</span></li>
-                    <li class="ot-letter-bottom"><span data-letter="T">T</span></li>
-                    <li class="ot-letter-right"><span data-letter="I">I</span></li>
-                </ul>
-            </div>
-        </div>
-    </a>
-    <script>
-        $(document).ready(function () {
-            $(".cs-text-cut").lettering('words');
-        });
-    </script>
-</body>
+  <div class="starfield"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
 
+  <div class="welcome-container" id="welcomeContainer">
+    <div class="ring-wrapper animate-fadeIn">
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-3"></div>
+      <div class="ring-center">
+        <span class="ring-center-text">MBTI</span>
+      </div>
+    </div>
+    <h1 class="welcome-title">
+      <span class="t1">人格</span>
+      <span class="t2">测试</span>
+    </h1>
+    <p class="welcome-sub">探索你的性格类型，了解真实的自我</p>
+    <div class="enter-prompt">
+      <span>点击任意位置进入</span>
+      <div class="enter-arrow"></div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var colors=['#667eea','#4facfe','#f093fb','#43e97b','#764ba2'];
+      for(var i=0;i<18;i++){
+        var p=document.createElement('div'); p.className='particle';
+        var size=Math.random()*5+2;
+        p.style.cssText='width:'+size+'px;height:'+size+'px;left:'+Math.random()*100+'%;background:'+colors[Math.floor(Math.random()*colors.length)]+';opacity:'+(Math.random()*.5+.2)+';animation-duration:'+(Math.random()*15+10)+'s;animation-delay:'+(Math.random()*-20)+'s';
+        document.body.appendChild(p);
+      }
+    })();
+    document.getElementById('welcomeContainer').addEventListener('click',function(e){
+      var r=document.createElement('div'); r.className='ripple';
+      r.style.left=e.clientX+'px'; r.style.top=e.clientY+'px';
+      document.body.appendChild(r);
+      setTimeout(function(){ window.location.href='./index.html'; }, 380);
+    });
+  </script>
+</body>
 </html>

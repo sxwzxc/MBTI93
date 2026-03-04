@@ -1,0 +1,66 @@
+{
+  "name": "mbti-personality-test",
+  "caches": [
+    {
+      "source": "/static/css/*",
+      "cacheTtl": 86400
+    },
+    {
+      "source": "/static/js/*",
+      "cacheTtl": 86400
+    },
+    {
+      "source": "/static/img/*",
+      "cacheTtl": 604800
+    },
+    {
+      "source": "/data/*",
+      "cacheTtl": 3600
+    }
+  ],
+  "headers": [
+    {
+      "source": "/*",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/static/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/welcome",
+      "destination": "/welcome.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/test",
+      "destination": "/MBTI.html",
+      "statusCode": 301
+    },
+    {
+      "source": "/personalities",
+      "destination": "/personalities.html",
+      "statusCode": 301
+    }
+  ]
+}
