@@ -160,7 +160,8 @@
       font-size: clamp(3rem, 10vw, 5.5rem);
       font-weight: 900;
       letter-spacing: .08em;
-      background: var(--gradient-primary);
+      /* gradient set dynamically in JS */
+      background-image: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -709,10 +710,19 @@
     document.getElementById('stepDots').style.display = 'none';
 
     // fill result
-    document.getElementById('resCode').textContent = type;
-    document.getElementById('resCode').style.background = 'none';
-    document.getElementById('resCode').style.webkitTextFillColor = cfg.color;
-    document.getElementById('resCode').style.color = cfg.color;
+    var GRADIENTS = {
+      analyst:  'linear-gradient(135deg,#c4b5fd,#8b5cf6)',
+      diplomat: 'linear-gradient(135deg,#6ee7b7,#10b981)',
+      sentinel: 'linear-gradient(135deg,#93c5fd,#3b82f6)',
+      explorer: 'linear-gradient(135deg,#fde68a,#f97316)',
+    };
+    var codeEl = document.getElementById('resCode');
+    codeEl.textContent = type;
+    codeEl.style.backgroundImage = GRADIENTS[info.group] || GRADIENTS.analyst;
+    codeEl.style.webkitBackgroundClip = 'text';
+    codeEl.style.backgroundClip = 'text';
+    codeEl.style.webkitTextFillColor = 'transparent';
+    codeEl.style.color = cfg.color;
     document.getElementById('resName').textContent = info.name;
 
     // character
@@ -787,5 +797,17 @@
     }
   }
   </script>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>Made with ♥ by <strong>XW Shen</strong></span>
+      <span class="footer-sep">·</span>
+      <a href="https://github.com/MskTmi/MBTI" target="_blank" rel="noopener" class="footer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:.3em"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </footer>
 </body>
 </html>

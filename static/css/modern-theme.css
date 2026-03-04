@@ -1064,3 +1064,36 @@ body {
 [data-tooltip]:hover::after {
   opacity: 1;
 }
+
+/*  Site Footer  */
+.site-footer {
+  width: 100%;
+  padding: 1.8rem 1rem 2rem;
+  text-align: center;
+  border-top: 1px solid var(--border-glass);
+  background: rgba(7,11,26,.6);
+  backdrop-filter: blur(10px);
+  margin-top: 4rem;
+  position: relative;
+  z-index: 1;
+}
+.footer-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: .85rem;
+  color: var(--text-muted);
+}
+.footer-inner strong { color: var(--text-secondary); }
+.footer-sep { opacity: .4; }
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  gap: .2em;
+}
+.footer-link:hover { color: var(--text-primary); }
