@@ -1065,35 +1065,75 @@ body {
   opacity: 1;
 }
 
-/*  Site Footer  */
+/* ── Site Footer ── */
 .site-footer {
   width: 100%;
-  padding: 1.8rem 1rem 2rem;
+  padding: 0 1rem 2.4rem;
   text-align: center;
-  border-top: 1px solid var(--border-glass);
-  background: rgba(7,11,26,.6);
-  backdrop-filter: blur(10px);
-  margin-top: 4rem;
   position: relative;
   z-index: 1;
+  margin-top: 3.5rem;
+}
+/* gradient divider line */
+.site-footer::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(102,126,234,.35) 25%,
+    rgba(79,172,254,.35) 75%,
+    transparent 100%
+  );
+  margin-bottom: 1.6rem;
 }
 .footer-inner {
   display: inline-flex;
   align-items: center;
-  gap: .7rem;
+  gap: .75rem;
   flex-wrap: wrap;
   justify-content: center;
-  font-size: .85rem;
+  font-size: .82rem;
   color: var(--text-muted);
+  padding: .55rem 1.5rem;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 9999px;
+  box-shadow:
+    0 2px 16px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 0 0 1px rgba(102,126,234,.05);
+  backdrop-filter: blur(8px);
+  transition: border-color .25s ease, box-shadow .25s ease;
 }
-.footer-inner strong { color: var(--text-secondary); }
-.footer-sep { opacity: .4; }
+.footer-inner:hover {
+  border-color: rgba(255,255,255,.12);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 0 1px rgba(102,126,234,.1);
+}
+.footer-inner strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.footer-sep {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  display: inline-block;
+  flex-shrink: 0;
+}
 .footer-link {
   display: inline-flex;
   align-items: center;
   color: var(--text-muted);
   text-decoration: none;
-  transition: color var(--transition-fast);
-  gap: .2em;
+  gap: .28em;
+  transition: color .2s ease;
 }
-.footer-link:hover { color: var(--text-primary); }
+.footer-link:hover { color: #93c5fd; }
+.footer-link svg { opacity: .7; transition: opacity .2s ease; }
+.footer-link:hover svg { opacity: 1; }
