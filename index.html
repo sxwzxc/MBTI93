@@ -21,7 +21,8 @@
     <a href="./index.html" class="nav-brand">MBTI</a>
     <ul class="nav-links" id="navLinks">
       <li><a href="./personalities.html">十六种人格</a></li>
-      <li><a href="./MBTI.html">开始测试</a></li>
+      <li><a href="./quick-test.html" style="color:#43e97b">⚡ 快速测试</a></li>
+      <li><a href="./MBTI.html">完整测试</a></li>
     </ul>
     <button class="nav-hamburger" id="navHamburger" aria-label="菜单">
       <span></span><span></span><span></span>
@@ -30,7 +31,7 @@
 
   <!-- Hero -->
   <section class="hero-section">
-    <div class="hero-badge">✨ 93题 · 免费 · 无需注册</div>
+    <div class="hero-badge">✨ 93题深度测试 · 4题快速测试 · 完全免费</div>
     <h1 class="hero-title">
       了解真实的<br />
       <span class="gradient-text">MBTI 人格</span>
@@ -38,7 +39,10 @@
     <p class="hero-subtitle">性格测试展示的是你的性格倾向，而不是知识、技能或经验。每一种性格特征都有其价值和优点，清楚了解自己方能更好地发挥潜力。</p>
     <div class="hero-actions">
       <a href="./MBTI.html" class="btn-primary-glow">
-        开始测试 &rarr;
+        开始完整测试 &rarr;
+      </a>
+      <a href="./quick-test.html" class="btn-outline-glow" style="border-color:rgba(67,233,123,.5);color:#43e97b">
+        ⚡ 4题快速测试
       </a>
       <a href="./personalities.html" class="btn-outline-glow">
         查看十六种人格
@@ -48,6 +52,31 @@
 
   <!-- Info cards -->
   <section class="content-wrapper" style="padding-top:0">
+
+    <!-- Test mode picker -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:2rem">
+      <a href="./quick-test.html" style="text-decoration:none;display:block;"
+         onmouseover="this.querySelector('.mode-card').style.borderColor='rgba(67,233,123,.55)'" 
+         onmouseout="this.querySelector('.mode-card').style.borderColor='var(--border-glass)'">
+        <div class="mode-card" style="background:var(--glass-bg);border:1.5px solid var(--border-glass);border-radius:20px;padding:1.6rem 1.4rem;transition:border-color .25s ease,transform .25s ease;cursor:pointer">
+          <div style="font-size:2rem;margin-bottom:.7rem">⚡</div>
+          <div style="font-weight:700;font-size:1.1rem;color:#43e97b;margin-bottom:.4rem">4 题快速测试</div>
+          <div style="font-size:.88rem;color:var(--text-muted);line-height:1.6">每个维度选一次，<strong style="color:var(--text-secondary)">30秒</strong>即可知晓你的四字母类型，附带彩色人格角色和详情解析。</div>
+          <div style="margin-top:1rem;font-size:.82rem;font-weight:600;color:#43e97b">立即开始 →</div>
+        </div>
+      </a>
+      <a href="./MBTI.html" style="text-decoration:none;display:block;"
+         onmouseover="this.querySelector('.mode-card').style.borderColor='rgba(102,126,234,.55)'" 
+         onmouseout="this.querySelector('.mode-card').style.borderColor='var(--border-glass)'">
+        <div class="mode-card" style="background:var(--glass-bg);border:1.5px solid var(--border-glass);border-radius:20px;padding:1.6rem 1.4rem;transition:border-color .25s ease,transform .25s ease;cursor:pointer">
+          <div style="font-size:2rem;margin-bottom:.7rem">🧠</div>
+          <div style="font-weight:700;font-size:1.1rem;color:var(--color-primary);margin-bottom:.4rem">93 题深度测试</div>
+          <div style="font-size:.88rem;color:var(--text-muted);line-height:1.6">经典 MBTI 完整题库，根据真实行为倾向得出<strong style="color:var(--text-secondary)">更精准结果</strong>，约 10 分钟完成。</div>
+          <div style="margin-top:1rem;font-size:.82rem;font-weight:600;color:var(--color-primary)">开始测试 →</div>
+        </div>
+      </a>
+    </div>
+
     <div class="notice-card">
       <h3>📋 测试前须知</h3>
       <p>① 请务必诚实、独立地回答问题，只有如此才能得到有效的结果。</p>

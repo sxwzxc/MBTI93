@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MBTI 快速测试 - 4题快速了解你的人格类型" />
+  <title>快速测试 · MBTI</title>
+  <link rel="shortcut icon" href="./static/img/favicon.ico" />
+  <link rel="stylesheet" href="./static/css/modern-theme.css" />
+  <style>
+    /* ── page layout ── */
+    body { overflow-x: hidden; }
+    .qt-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 1rem 3rem;
+    }
+
+    /* ── step indicator ── */
+    .step-indicator {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2.4rem;
+    }
+    .step-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      transition: all .4s ease;
+    }
+    .step-dot.active {
+      background: var(--color-primary);
+      box-shadow: 0 0 12px var(--color-primary);
+      transform: scale(1.3);
+    }
+    .step-dot.done {
+      background: var(--color-accent-green);
+    }
+
+    /* ── question card ── */
+    .qt-card {
+      width: 100%; max-width: 640px;
+      background: var(--glass-bg);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      padding: 2.8rem 2.4rem;
+      display: none;
+      animation: qtCardIn .45s cubic-bezier(.22,1,.36,1) both;
+    }
+    .qt-card.active { display: block; }
+    @keyframes qtCardIn {
+      from { opacity:0; transform: translateY(28px) scale(.96); }
+      to   { opacity:1; transform: translateY(0)    scale(1);   }
+    }
+
+    .qt-step-label {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      margin-bottom: .7rem;
+    }
+    .qt-question {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.45;
+      margin-bottom: .5rem;
+    }
+    .qt-sub {
+      font-size: .93rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    /* ── choice buttons ── */
+    .qt-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .qt-choice {
+      position: relative;
+      padding: 1.6rem 1.2rem 1.4rem;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-glass);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: all .25s ease;
+      text-align: center;
+      overflow: hidden;
+    }
+    .qt-choice:hover {
+      border-color: var(--color-primary);
+      background: rgba(102,126,234,0.12);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(102,126,234,0.18);
+    }
+    .qt-choice .letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0 auto .8rem;
+    }
+    .qt-choice .choice-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: .35rem;
+    }
+    .qt-choice .choice-desc {
+      font-size: .82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    /* per-question color themes */
+    .q-ei .qt-choice:nth-child(1) .letter { background: rgba(102,126,234,.18); color: #a78bfa; }
+    .q-ei .qt-choice:nth-child(2) .letter { background: rgba(79,172,254,.18); color: #60c7ff; }
+    .q-sn .qt-choice:nth-child(1) .letter { background: rgba(67,233,123,.18); color: #43e97b; }
+    .q-sn .qt-choice:nth-child(2) .letter { background: rgba(240,147,251,.18); color: #f093fb; }
+    .q-tf .qt-choice:nth-child(1) .letter { background: rgba(79,172,254,.18); color: #4facfe; }
+    .q-tf .qt-choice:nth-child(2) .letter { background: rgba(240,147,251,.18); color: #f5576c; }
+    .q-jp .qt-choice:nth-child(1) .letter { background: rgba(67,233,123,.18); color: #43e97b; }
+    .q-jp .qt-choice:nth-child(2) .letter { background: rgba(252,196,90,.18); color: #fcc45a; }
+
+    /* ── result panel ── */
+    #resultPanel {
+      width: 100%; max-width: 760px;
+      display: none;
+      animation: qtCardIn .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    .result-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .result-badge {
+      display: inline-block;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--color-accent-green);
+      background: rgba(67,233,123,.12);
+      border: 1px solid rgba(67,233,123,.25);
+      border-radius: 999px;
+      padding: .3rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .result-type-code {
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      font-weight: 900;
+      letter-spacing: .08em;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: .3rem;
+    }
+    .result-type-name {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: .5rem;
+    }
+
+    /* ── character + traits layout ── */
+    .result-body {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media(max-width:640px){
+      .result-body { grid-template-columns: 1fr; }
+      .char-col { display: flex; flex-direction: column; align-items: center; }
+    }
+    .char-col { display: flex; flex-direction: column; align-items: center; }
+    .char-figure {
+      width: 200px; height: 240px;
+      filter: drop-shadow(0 12px 40px rgba(0,0,0,.4));
+      animation: charFloat 4s ease-in-out infinite;
+    }
+    @keyframes charFloat {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    .char-group-tag {
+      margin-top: 1rem;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .28rem .9rem;
+      border-radius: 999px;
+      border: 1px solid;
+    }
+
+    /* ── info panel ── */
+    .result-desc {
+      background: var(--glass-bg);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 1.4rem 1.6rem;
+      color: var(--text-secondary);
+      font-size: .95rem;
+      line-height: 1.75;
+      margin-bottom: 1.2rem;
+    }
+    .traits-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .55rem;
+      margin-bottom: 1.4rem;
+    }
+    .trait-tag {
+      font-size: .8rem;
+      font-weight: 500;
+      padding: .3rem .85rem;
+      border-radius: 999px;
+      background: rgba(102,126,234,.12);
+      border: 1px solid rgba(102,126,234,.25);
+      color: #c4b5fd;
+    }
+    .dim-strips {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      margin-bottom: 1.6rem;
+    }
+    .dim-strip {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      font-size: .85rem;
+    }
+    .dim-label {
+      width: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-align: center;
+    }
+    .dim-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background: rgba(255,255,255,.07);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .dim-bar {
+      height: 100%;
+      border-radius: 4px;
+      width: 65%;
+      transition: width 1s ease .3s;
+    }
+    .dim-name {
+      width: 72px;
+      font-size: .78rem;
+      color: var(--text-muted);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn-retake {
+      padding: .7rem 1.6rem;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-glass);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: .92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s ease;
+      font-family: var(--font-sans);
+    }
+    .btn-retake:hover { border-color: rgba(255,255,255,.3); color: var(--text-primary); }
+    .btn-full-test {
+      padding: .7rem 1.6rem;
+      border-radius: 12px;
+      border: 1.5px solid rgba(102,126,234,.4);
+      background: rgba(102,126,234,.1);
+      color: #a78bfa;
+      font-size: .92rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      transition: all .2s ease;
+      font-family: var(--font-sans);
+    }
+    .btn-full-test:hover { background: rgba(102,126,234,.2); transform: translateY(-2px); }
+
+    /* ── confetti ── */
+    .confetti-piece {
+      position: fixed;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      opacity: 0;
+      pointer-events: none;
+      animation: confettiFall 2.5s ease-in-out forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform: translateY(-60px) rotate(0deg); opacity:1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="starfield"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+
+  <!-- Navbar -->
+  <nav class="modern-nav">
+    <a href="./index.html" class="nav-brand">MBTI</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="./personalities.html">十六种人格</a></li>
+      <li><a href="./MBTI.html">完整测试</a></li>
+    </ul>
+    <button class="nav-hamburger" id="navHamburger"><span></span><span></span><span></span></button>
+  </nav>
+
+  <main class="qt-page">
+
+    <!-- Step dots -->
+    <div class="step-indicator" id="stepDots">
+      <div class="step-dot active" id="dot-0"></div>
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+
+    <!-- Q1: E / I -->
+    <div class="qt-card active q-ei" id="q0">
+      <div class="qt-step-label">第 1 题 · 共 4 题</div>
+      <div class="qt-question">你在人群中通常是？</div>
+      <div class="qt-sub">选择最符合你日常状态的那个</div>
+      <div class="qt-choices">
+        <div class="qt-choice" onclick="pick(0,'E')">
+          <div class="letter">E</div>
+          <div class="choice-name">外向型</div>
+          <div class="choice-desc">喜欢社交，从与人相处中获取能量，话多、活跃</div>
+        </div>
+        <div class="qt-choice" onclick="pick(0,'I')">
+          <div class="letter">I</div>
+          <div class="choice-name">内向型</div>
+          <div class="choice-desc">享受独处，需要安静充电，思考多于表达</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2: S / N -->
+    <div class="qt-card q-sn" id="q1">
+      <div class="qt-step-label">第 2 题 · 共 4 题</div>
+      <div class="qt-question">面对信息，你更倾向于？</div>
+      <div class="qt-sub">你更信任哪种方式来理解世界</div>
+      <div class="qt-choices">
+        <div class="qt-choice" onclick="pick(1,'S')">
+          <div class="letter">S</div>
+          <div class="choice-name">实感型</div>
+          <div class="choice-desc">注重现实细节，讲求亲眼所见、实际可操作</div>
+        </div>
+        <div class="qt-choice" onclick="pick(1,'N')">
+          <div class="letter">N</div>
+          <div class="choice-name">直觉型</div>
+          <div class="choice-desc">关注可能性与概念，善于联想、看整体格局</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q3: T / F -->
+    <div class="qt-card q-tf" id="q2">
+      <div class="qt-step-label">第 3 题 · 共 4 题</div>
+      <div class="qt-question">做决定时，你更看重？</div>
+      <div class="qt-sub">当逻辑和情感冲突时，你会怎么选</div>
+      <div class="qt-choices">
+        <div class="qt-choice" onclick="pick(2,'T')">
+          <div class="letter">T</div>
+          <div class="choice-name">思考型</div>
+          <div class="choice-desc">以逻辑和客观标准为准，注重公平与效率</div>
+        </div>
+        <div class="qt-choice" onclick="pick(2,'F')">
+          <div class="letter">F</div>
+          <div class="choice-name">情感型</div>
+          <div class="choice-desc">优先考虑人的感受和关系，重视和谐与价值观</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q4: J / P -->
+    <div class="qt-card q-jp" id="q3">
+      <div class="qt-step-label">第 4 题 · 共 4 题</div>
+      <div class="qt-question">你的生活方式更像？</div>
+      <div class="qt-sub">日常中你倾向于哪种节奏</div>
+      <div class="qt-choices">
+        <div class="qt-choice" onclick="pick(3,'J')">
+          <div class="letter">J</div>
+          <div class="choice-name">判断型</div>
+          <div class="choice-desc">有计划、有条理，喜欢决策明确、按时完成</div>
+        </div>
+        <div class="qt-choice" onclick="pick(3,'P')">
+          <div class="letter">P</div>
+          <div class="choice-name">感知型</div>
+          <div class="choice-desc">灵活开放，享受随机应变、保留多种可能性</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="resultPanel">
+      <div class="result-header">
+        <div class="result-badge">✨ 你的人格类型</div>
+        <div class="result-type-code" id="resCode">INFP</div>
+        <div class="result-type-name" id="resName">调停者型</div>
+      </div>
+      <div class="result-body">
+        <div class="char-col">
+          <div class="char-figure" id="charFigure"></div>
+          <div class="char-group-tag" id="charGroupTag"></div>
+        </div>
+        <div class="info-col">
+          <div class="result-desc" id="resDesc"></div>
+          <div class="traits-grid" id="resTraits"></div>
+          <div class="dim-strips" id="resDims"></div>
+          <div class="result-actions">
+            <button class="btn-retake" onclick="restartQuiz()">↺ 重新选择</button>
+            <a class="btn-full-test" href="./MBTI.html">参加完整 93 题测试 →</a>
+            <a class="btn-full-test" id="btnDetail" href="#">查看完整人格档案 ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+  // ── nav ──
+  document.getElementById('navHamburger').addEventListener('click',function(){
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  // ── state ──
+  var answers = [null, null, null, null];
+  var currentStep = 0;
+
+  // ── pick handler ──
+  function pick(step, letter) {
+    answers[step] = letter;
+    dot('done', step);
+    currentStep = step + 1;
+    if (currentStep < 4) {
+      showCard(step, currentStep);
+    } else {
+      showResult();
+    }
+  }
+
+  function dot(state, idx) {
+    var d = document.getElementById('dot-'+idx);
+    d.classList.remove('active','done');
+    d.classList.add(state);
+    if (state === 'done' && idx+1 < 4) {
+      document.getElementById('dot-'+(idx+1)).classList.add('active');
+    }
+  }
+
+  function showCard(hideIdx, showIdx) {
+    var old = document.getElementById('q'+hideIdx);
+    old.style.animation = 'none';
+    old.style.opacity = '0';
+    old.style.transform = 'translateY(-20px)';
+    setTimeout(function(){
+      old.classList.remove('active');
+      old.style.cssText = '';
+      var next = document.getElementById('q'+showIdx);
+      next.classList.add('active');
+    }, 280);
+  }
+
+  function restartQuiz() {
+    answers = [null, null, null, null];
+    currentStep = 0;
+    document.getElementById('resultPanel').style.display = 'none';
+    document.getElementById('resultPanel').style.animation = '';
+    document.getElementById('stepDots').style.display = 'flex';
+    ['dot-0','dot-1','dot-2','dot-3'].forEach(function(id,i){
+      var d = document.getElementById(id);
+      d.className = 'step-dot' + (i===0 ? ' active' : '');
+    });
+    var q0 = document.getElementById('q0');
+    q0.classList.add('active');
+    q0.style.cssText = '';
+  }
+
+  // ── personality data ──
+  var TYPES = {
+    INTJ: { name:'建筑师型', group:'analyst',   groupName:'分析家',
+      desc:'独立、自信、极具战略眼光。你拥有强大的内在动力，善于将抽象理论转化为可执行计划，追求完美，对自己和他人要求都很高。',
+      traits:['战略思维','完美主义','独立自主','高标准','长远目光','理性决策'] },
+    INTP: { name:'逻辑学家型', group:'analyst', groupName:'分析家',
+      desc:'安静而分析化。你对世界充满好奇，热爱探索复杂系统背后的规律，思维灵活、富有创意，喜欢找出问题的根本逻辑。',
+      traits:['逻辑分析','概念思考','灵活开放','好奇求知','独创性','客观理性'] },
+    ENTJ: { name:'指挥官型', group:'analyst',   groupName:'分析家',
+      desc:'天生的领导者。你自信果断，善于规划并推动结果，喜欢接受挑战，能快速识别低效之处并提出改进方案。',
+      traits:['领导力强','战略决策','果断高效','目标导向','善于辩论','系统规划'] },
+    ENTP: { name:'辩论家型', group:'analyst',   groupName:'分析家',
+      desc:'思维活跃的创新者。你喜欢挑战既有观念，善于从多角度审视问题，充满创意和说服力，总能找到最有趣的解题方式。',
+      traits:['创新思维','口才出众','多角度思考','挑战权威','随机应变','热爱辩论'] },
+    INFJ: { name:'提倡者型', group:'diplomat',  groupName:'外交家',
+      desc:'有理想、有洞察力的引导者。你富有同理心，能深刻理解他人，同时对未来怀有清晰愿景，致力于让世界变得更好。',
+      traits:['深度洞察','高度同理心','理想主义','有原则','创造性','致力改变'] },
+    INFP: { name:'调停者型', group:'diplomat',  groupName:'外交家',
+      desc:'富有诗意的梦想家。你内心世界丰富，重视真实性与内心价值观，充满创造力，善于用温柔而坚定的方式影响他人。',
+      traits:['理想主义','创造力强','真实诚挚','善解人意','价值驱动','文艺气质'] },
+    ENFJ: { name:'主人公型', group:'diplomat',  groupName:'外交家',
+      desc:'热情有感染力的领袖。你天生关心他人，善于激励和团结周围的人朝共同目标努力，是天然的沟通桥梁。',
+      traits:['感召力强','善于沟通','有远见','关怀他人','魅力十足','以人为本'] },
+    ENFP: { name:'竞选者型', group:'diplomat',  groupName:'外交家',
+      desc:'充满热情的探索者。你对生活充满好奇，思维跳跃，善于发现人与可能性之间的联系，总能为团队注入活力。',
+      traits:['热情洋溢','想象力丰富','善于起点子','喜爱自由','感染力强','以人为本'] },
+    ISTJ: { name:'物流师型', group:'sentinel',  groupName:'守护者',
+      desc:'可靠稳重的实干家。你做事认真细致、重视承诺，对规则和责任有高度认同，是维持秩序和稳定的中坚力量。',
+      traits:['责任感强','认真细致','踏实可靠','尊重传统','有条不紊','独立自主'] },
+    ISFJ: { name:'守卫者型', group:'sentinel',  groupName:'守护者',
+      desc:'温和而尽职的守护者。你体贴周到，乐于帮助他人，记忆力强，对细节敏感，是默默支撑团队的坚实后盾。',
+      traits:['无私奉献','细致体贴','记忆力强','稳定可靠','乐于助人','低调朴实'] },
+    ESTJ: { name:'总经理型', group:'sentinel',  groupName:'守护者',
+      desc:'务实高效的组织者。你善于管理资源和人员，重视效率和结果，执行力强，能将复杂任务拆解为明晰步骤推进。',
+      traits:['强执行力','高组织性','务实导向','重视规则','善于管理','果断决策'] },
+    ESFJ: { name:'执政官型', group:'sentinel',  groupName:'守护者',
+      desc:'热情外向的联结者。你善于维系关系，体贴入微，关心集体和谐，是让周围人感到被关注和支持的温暖存在。',
+      traits:['善于社交','热情体贴','重视和谐','忠诚可靠','组织能力','乐于分享'] },
+    ISTP: { name:'鉴赏家型', group:'explorer',  groupName:'探险家',
+      desc:'冷静而灵巧的问题解决者。你善于分析机械或系统问题，实际动手能力强，喜欢独立探索，能在危机中保持冷静。',
+      traits:['动手能力强','冷静理性','实际操作','快速反应','独立自主','善于观察'] },
+    ISFP: { name:'探险家型', group:'explorer',  groupName:'探险家',
+      desc:'温柔而充满感性的艺术家。你有独特的审美感受，享受当下，对美和自然有敏锐感知，用行动而非言语表达自我。',
+      traits:['艺术气质','活在当下','感性直觉','温柔善良','审美独到','自由随性'] },
+    ESTP: { name:'企业家型', group:'explorer',  groupName:'探险家',
+      desc:'充满能量的行动派。你精力充沛，思维快速，善于把握机遇，喜欢在真实世界中解决实际问题，享受挑战的刺激。',
+      traits:['行动力强','快速决策','善于交际','把握机遇','实际务实','喜爱挑战'] },
+    ESFP: { name:'表演者型', group:'explorer',  groupName:'探险家',
+      desc:'活泼开朗的焦点人物。你天生乐观，享受当下，善于带动气氛，关心他人感受，总能让身边的人感到快乐和轻松。',
+      traits:['开朗乐观','表达力强','乐于助人','享受当下','善于互动','感染力强'] },
+  };
+
+  // ── group color config ──
+  var GROUP_CONFIG = {
+    analyst:  { color:'#a78bfa', bg:'rgba(139,92,246,.18)', border:'rgba(139,92,246,.35)', tagBg:'rgba(139,92,246,.15)', barColor:'#8b5cf6' },
+    diplomat: { color:'#34d399', bg:'rgba(52,211,153,.18)', border:'rgba(52,211,153,.35)', tagBg:'rgba(52,211,153,.15)', barColor:'#10b981' },
+    sentinel: { color:'#60a5fa', bg:'rgba(96,165,250,.18)', border:'rgba(96,165,250,.35)', tagBg:'rgba(96,165,250,.15)', barColor:'#3b82f6' },
+    explorer: { color:'#fbbf24', bg:'rgba(251,191,36,.18)',  border:'rgba(251,191,36,.35)',  tagBg:'rgba(251,191,36,.15)',  barColor:'#f59e0b' },
+  };
+
+  // ── SVG character generator ──
+  // params: skinColor, hairColor, bodyColor, bodyColor2, accessory, armStyle
+  function mkChar(p) {
+    var armL, armR;
+    if (p.arms === 'spread') {
+      armL = '<path d="M88 118 Q68 110 55 125" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+      armR = '<path d="M112 118 Q132 110 145 125" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+    } else if (p.arms === 'up') {
+      armL = '<path d="M88 115 Q70 100 62 86" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+      armR = '<path d="M112 115 Q130 100 138 86" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+    } else if (p.arms === 'fold') {
+      armL = '<path d="M88 120 Q78 118 88 130" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+      armR = '<path d="M112 120 Q122 118 112 130" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+    } else { // default down
+      armL = '<path d="M90 118 Q78 128 75 145" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+      armR = '<path d="M110 118 Q122 128 125 145" stroke="'+p.skin+'" stroke-width="9" stroke-linecap="round" fill="none"/>';
+    }
+
+    var accessorySvg = '';
+    if (p.acc === 'glasses') {
+      accessorySvg = '<rect x="78" y="67" width="12" height="8" rx="4" fill="none" stroke="'+p.body1+'" stroke-width="2.5"/><rect x="94" y="67" width="12" height="8" rx="4" fill="none" stroke="'+p.body1+'" stroke-width="2.5"/><line x1="90" y1="71" x2="94" y2="71" stroke="'+p.body1+'" stroke-width="2"/><line x1="78" y1="71" x2="74" y2="70" stroke="'+p.body1+'" stroke-width="2"/><line x1="106" y1="71" x2="110" y2="70" stroke="'+p.body1+'" stroke-width="2"/>';
+    } else if (p.acc === 'crown') {
+      accessorySvg = '<polygon points="92,46 96,54 100,48 104,54 108,46 108,58 92,58" fill="'+p.body1+'" opacity=".9"/>';
+    } else if (p.acc === 'heart') {
+      accessorySvg = '<path d="M96 74 C96 74 90 70 90 66 C90 63 93 62 96 65 C99 62 102 63 102 66 C102 70 96 74 96 74Z" fill="#f87171"/>';
+    } else if (p.acc === 'book') {
+      accessorySvg = '<rect x="74" y="130" width="14" height="18" rx="2" fill="'+p.body2+'" opacity=".9"/><line x1="81" y1="130" x2="81" y2="148" stroke="'+p.body1+'" stroke-width="1.5"/>';
+    } else if (p.acc === 'star') {
+      accessorySvg = '<polygon points="100,47 102,53 108,53 103,57 105,63 100,59 95,63 97,57 92,53 98,53" fill="#fbbf24" opacity=".9"/>';
+    } else if (p.acc === 'leaf') {
+      accessorySvg = '<path d="M100 43 C104 47 106 52 101 55 C96 52 94 47 100 43Z" fill="#6ee7b7"/>';
+    }
+
+    // hair styles
+    var hairSvg = '';
+    if (p.hair === 'short') {
+      hairSvg = '<ellipse cx="100" cy="61" rx="22" ry="8" fill="'+p.hairC+'"/><rect x="78" y="57" width="44" height="10" rx="5" fill="'+p.hairC+'"/>';
+    } else if (p.hair === 'long') {
+      hairSvg = '<ellipse cx="100" cy="61" rx="22" ry="8" fill="'+p.hairC+'"/><rect x="78" y="57" width="10" height="28" rx="5" fill="'+p.hairC+'"/><rect x="112" y="57" width="10" height="28" rx="5" fill="'+p.hairC+'"/>';
+    } else if (p.hair === 'curly') {
+      hairSvg = '<ellipse cx="100" cy="60" rx="23" ry="9" fill="'+p.hairC+'"/><circle cx="80" cy="62" r="6" fill="'+p.hairC+'"/><circle cx="120" cy="62" r="6" fill="'+p.hairC+'"/><circle cx="100" cy="54" r="6" fill="'+p.hairC+'"/>';
+    } else if (p.hair === 'bun') {
+      hairSvg = '<ellipse cx="100" cy="62" rx="22" ry="8" fill="'+p.hairC+'"/><circle cx="100" cy="51" r="9" fill="'+p.hairC+'"/>';
+    } else if (p.hair === 'side') {
+      hairSvg = '<ellipse cx="100" cy="61" rx="22" ry="8" fill="'+p.hairC+'"/><rect x="78" y="57" width="20" height="20" rx="5" fill="'+p.hairC+'"/>';
+    }
+
+    return '<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">'
+      // background glow circle
+      + '<circle cx="100" cy="150" r="100" fill="url(#bgGrad'+p.id+')"/>'
+      + '<defs>'
+      + '<radialGradient id="bgGrad'+p.id+'" cx="50%" cy="50%" r="50%">'
+      + '<stop offset="0%" stop-color="'+p.body1+'" stop-opacity=".25"/>'
+      + '<stop offset="100%" stop-color="'+p.body1+'" stop-opacity="0"/>'
+      + '</radialGradient>'
+      + '</defs>'
+      // shadow
+      + '<ellipse cx="100" cy="248" rx="36" ry="8" fill="rgba(0,0,0,.25)"/>'
+      // legs
+      + '<rect x="86" y="172" width="11" height="52" rx="6" fill="'+p.body2+'"/>'
+      + '<rect x="103" y="172" width="11" height="52" rx="6" fill="'+p.body2+'"/>'
+      // feet
+      + '<ellipse cx="91" cy="224" rx="10" ry="6" fill="'+p.hairC+'"/>'
+      + '<ellipse cx="109" cy="224" rx="10" ry="6" fill="'+p.hairC+'"/>'
+      // body
+      + '<rect x="81" y="105" width="38" height="72" rx="10" fill="'+p.body1+'"/>'
+      // collar detail
+      + '<path d="M95 105 L100 115 L105 105" fill="'+p.body2+'" opacity=".7"/>'
+      // arms
+      + armL + armR
+      // neck
+      + '<rect x="93" y="96" width="14" height="14" fill="'+p.skin+'"/>'
+      // head
+      + '<circle cx="100" cy="76" r="26" fill="'+p.skin+'"/>'
+      // hair
+      + hairSvg
+      // eyes
+      + '<circle cx="92" cy="74" r="3.5" fill="#1e1b4b"/>'
+      + '<circle cx="108" cy="74" r="3.5" fill="#1e1b4b"/>'
+      + '<circle cx="93" cy="73" r="1.2" fill="white" opacity=".8"/>'
+      + '<circle cx="109" cy="73" r="1.2" fill="white" opacity=".8"/>'
+      // mouth
+      + (p.smile ? '<path d="M93 84 Q100 90 107 84" stroke="#92400e" stroke-width="2" fill="none" stroke-linecap="round"/>' : '<path d="M93 85 Q100 83 107 85" stroke="#92400e" stroke-width="2" fill="none"/>')
+      // accessory
+      + accessorySvg
+      + '</svg>';
+  }
+
+  // ── 16 character configs ──
+  var CHARS = {
+    INTJ: mkChar({id:'A1',skin:'#fcd9af',hairC:'#1e1b4b',hair:'short',body1:'#6d28d9',body2:'#4c1d95',arms:'fold',acc:'glasses',smile:false}),
+    INTP: mkChar({id:'A2',skin:'#fde8c8',hairC:'#374151',hair:'side', body1:'#7c3aed',body2:'#5b21b6',arms:'down',acc:'glasses',smile:false}),
+    ENTJ: mkChar({id:'A3',skin:'#fcd9af',hairC:'#111827',hair:'short',body1:'#5b21b6',body2:'#4c1d95',arms:'fold',acc:'crown', smile:true}),
+    ENTP: mkChar({id:'A4',skin:'#fde8c8',hairC:'#6b21a8',hair:'curly',body1:'#7c3aed',body2:'#6d28d9',arms:'up',  acc:'star',  smile:true}),
+
+    INFJ: mkChar({id:'B1',skin:'#fde8c8',hairC:'#1e3a2f',hair:'long', body1:'#059669',body2:'#065f46',arms:'down',acc:'leaf',   smile:true}),
+    INFP: mkChar({id:'B2',skin:'#fef3c7',hairC:'#7f4d2b',hair:'long', body1:'#10b981',body2:'#059669',arms:'down',acc:'heart',  smile:true}),
+    ENFJ: mkChar({id:'B3',skin:'#fcd9af',hairC:'#78350f',hair:'bun',  body1:'#34d399',body2:'#10b981',arms:'spread',acc:'heart',smile:true}),
+    ENFP: mkChar({id:'B4',skin:'#fde8c8',hairC:'#c2410c',hair:'curly',body1:'#6ee7b7',body2:'#34d399',arms:'up',  acc:'star',  smile:true}),
+
+    ISTJ: mkChar({id:'C1',skin:'#fde8c8',hairC:'#1e3a5f',hair:'short',body1:'#1d4ed8',body2:'#1e40af',arms:'fold',acc:'book',  smile:false}),
+    ISFJ: mkChar({id:'C2',skin:'#fef3c7',hairC:'#1a1a2e',hair:'bun',  body1:'#3b82f6',body2:'#2563eb',arms:'down',acc:'heart', smile:true}),
+    ESTJ: mkChar({id:'C3',skin:'#fcd9af',hairC:'#111827',hair:'short',body1:'#2563eb',body2:'#1d4ed8',arms:'fold',acc:'crown', smile:false}),
+    ESFJ: mkChar({id:'C4',skin:'#fde8c8',hairC:'#b45309',hair:'curly',body1:'#60a5fa',body2:'#3b82f6',arms:'spread',acc:'heart',smile:true}),
+
+    ISTP: mkChar({id:'D1',skin:'#fde8c8',hairC:'#1c1917',hair:'short',body1:'#d97706',body2:'#b45309',arms:'fold',acc:'glasses',smile:false}),
+    ISFP: mkChar({id:'D2',skin:'#fef3c7',hairC:'#7c2d12',hair:'long', body1:'#f59e0b',body2:'#d97706',arms:'down',acc:'leaf',   smile:true}),
+    ESTP: mkChar({id:'D3',skin:'#fcd9af',hairC:'#292524',hair:'side', body1:'#f97316',body2:'#ea580c',arms:'up',  acc:'star',  smile:true}),
+    ESFP: mkChar({id:'D4',skin:'#fde8c8',hairC:'#dc2626',hair:'curly',body1:'#fbbf24',body2:'#f59e0b',arms:'spread',acc:'star',smile:true}),
+  };
+
+  // ── dimension bar data ──
+  var DIM_BARS = {
+    INTJ:[['I','内向',75],['N','直觉',80],['T','思考',85],['J','判断',78]],
+    INTP:[['I','内向',82],['N','直觉',88],['T','思考',90],['P','感知',72]],
+    ENTJ:[['E','外向',78],['N','直觉',75],['T','思考',88],['J','判断',84]],
+    ENTP:[['E','外向',72],['N','直觉',90],['T','思考',74],['P','感知',80]],
+    INFJ:[['I','内向',80],['N','直觉',85],['F','情感',82],['J','判断',76]],
+    INFP:[['I','内向',78],['N','直觉',82],['F','情感',88],['P','感知',74]],
+    ENFJ:[['E','外向',75],['N','直觉',80],['F','情感',90],['J','判断',76]],
+    ENFP:[['E','外向',82],['N','直觉',86],['F','情感',84],['P','感知',78]],
+    ISTJ:[['I','内向',79],['S','实感',84],['T','思考',76],['J','判断',88]],
+    ISFJ:[['I','内向',76],['S','实感',78],['F','情感',82],['J','判断',84]],
+    ESTJ:[['E','外向',74],['S','实感',82],['T','思考',80],['J','判断',90]],
+    ESFJ:[['E','外向',80],['S','实感',76],['F','情感',88],['J','判断',82]],
+    ISTP:[['I','内向',77],['S','实感',80],['T','思考',86],['P','感知',84]],
+    ISFP:[['I','内向',74],['S','实感',72],['F','情感',80],['P','感知',82]],
+    ESTP:[['E','外向',82],['S','实感',78],['T','思考',74],['P','感知',80]],
+    ESFP:[['E','外向',88],['S','实感',76],['F','情感',84],['P','感知',86]],
+  };
+
+  // ── show result ──
+  function showResult() {
+    var type = answers.join('');
+    var info = TYPES[type] || TYPES['INFP'];
+    var cfg  = GROUP_CONFIG[info.group];
+    var dims = DIM_BARS[type] || DIM_BARS['INFP'];
+
+    // hide questions + dots
+    document.getElementById('stepDots').style.display = 'none';
+
+    // fill result
+    document.getElementById('resCode').textContent = type;
+    document.getElementById('resCode').style.background = 'none';
+    document.getElementById('resCode').style.webkitTextFillColor = cfg.color;
+    document.getElementById('resCode').style.color = cfg.color;
+    document.getElementById('resName').textContent = info.name;
+
+    // character
+    document.getElementById('charFigure').innerHTML = CHARS[type] || CHARS['INFP'];
+
+    // group tag
+    var tag = document.getElementById('charGroupTag');
+    tag.textContent = info.groupName;
+    tag.style.color = cfg.color;
+    tag.style.background = cfg.tagBg;
+    tag.style.borderColor = cfg.border;
+
+    // desc
+    document.getElementById('resDesc').textContent = info.desc;
+
+    // traits
+    var traitsHtml = '';
+    info.traits.forEach(function(t){
+      traitsHtml += '<span class="trait-tag" style="color:'+cfg.color+';background:'+cfg.bg+';border-color:'+cfg.border+'">'+t+'</span>';
+    });
+    document.getElementById('resTraits').innerHTML = traitsHtml;
+
+    // dimension bars
+    var dimsHtml = '';
+    dims.forEach(function(d){
+      dimsHtml += '<div class="dim-strip">'
+        + '<span class="dim-label" style="color:'+cfg.color+'">'+d[0]+'</span>'
+        + '<div class="dim-bar-wrap"><div class="dim-bar" style="width:0%;background:'+cfg.barColor+'" data-w="'+d[2]+'%"></div></div>'
+        + '<span class="dim-name">'+d[1]+'</span>'
+        + '</div>';
+    });
+    document.getElementById('resDims').innerHTML = dimsHtml;
+
+    // link to detail page
+    document.getElementById('btnDetail').href = './personalities/' + type + '.html';
+
+    // show panel
+    var panel = document.getElementById('resultPanel');
+    panel.style.display = 'block';
+
+    // animate bars after brief delay
+    setTimeout(function(){
+      document.querySelectorAll('.dim-bar').forEach(function(b){
+        b.style.width = b.getAttribute('data-w');
+      });
+    }, 300);
+
+    // confetti burst
+    spawnConfetti(cfg.color);
+  }
+
+  // ── confetti ──
+  function spawnConfetti(mainColor) {
+    var colors = [mainColor,'#ffffff','#a78bfa','#34d399','#fbbf24','#f87171'];
+    for (var i = 0; i < 55; i++) {
+      (function(idx){
+        var el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.cssText = [
+          'left:'+(Math.random()*100)+'vw',
+          'top:-20px',
+          'background:'+colors[Math.floor(Math.random()*colors.length)],
+          'width:'+(6+Math.random()*6)+'px',
+          'height:'+(6+Math.random()*6)+'px',
+          'border-radius:'+(Math.random()>.5?'50%':'3px'),
+          'animation-delay:'+(Math.random()*.8)+'s',
+          'animation-duration:'+(2+Math.random()*1.5)+'s',
+        ].join(';');
+        document.body.appendChild(el);
+        setTimeout(function(){ el.remove(); }, 4000);
+      })(i);
+    }
+  }
+  </script>
+</body>
+</html>
